@@ -1,0 +1,15 @@
+App SEO Title,My App
+no_records_found,There are no items to display
+access_denied,Acces denied
+access_denied_verbose,You are not authorised to acces or act upon this resource.
+db_error,Database returned an error
+record_not_found,Unable to find the requested resource. If it ever existed it might have been moved or deleted. Also please make sure you are authorised to acces this resource.
+action_failed,Action failed due to unknown reasons
+form_invalid,Form data validation failed. Please check your input
+bad_request,Bad request
+resource_not_found,Resource not found
+page_not_found,Page not found
+page_not_found_verbose,Unable to find the requested page. If it ever existed it might have been moved or deleted. Also please make sure you are authorised to acces this page.
+return_to_main_page, Click here to return to main page
+exception_encountered,Exception encountered
+exception_verbose,Unable to complete the request. System has run into an unexpected problem and cannot continue.

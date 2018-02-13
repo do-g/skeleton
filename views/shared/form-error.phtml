@@ -1,0 +1,12 @@
+<?php
+$errors = $this->form->get_field_errors($local);
+if ($errors) {
+	foreach ($errors as $type => $message) {
+		$classes = [
+			"form-error",
+			"form-error-{$type}",
+			"form-error-{$local}",
+		] ?>
+		<div class="invalid-feedback <?= implode(' ', $classes) ?>"><?= $message ?></div>
+	<?php }
+}

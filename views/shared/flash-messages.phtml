@@ -1,0 +1,43 @@
+<?php
+$errors = Util::get_flash_errors();
+if ($errors) {
+	if (!is_array($errors)) {
+		$errors = ['blank' => $errors];
+	}
+	foreach ($errors as $namespace => $message) {
+		$css_classes = [
+			"flash-message",
+			"error-message-{$namespace}",
+		];
+		?><div class="alert alert-danger alert-dismissible fade show <?= implode(' ', $css_classes) ?>" role="alert">
+			<?= $message ?>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div><?php
+	}
+}
+$notices = Util::get_flash_notices();
+if ($notices) {
+	if (!is_array($notices)) {
+		$notices = ['blank' => $notices];
+	}
+	foreach ($notices as $namespace => $message) {
+		$css_classes = [
+			"flash-message",
+			"notice-message-{$namespace}",
+		];
+		?><div class="alert alert-primary alert-dismissible fade show <?= implode(' ', $css_classes) ?>" role="alert">
+			<?= $message ?>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div><?php
+	}
+} ?>
+<div class="alert alert-sample alert-dismissible fade show flash-message" role="alert">
+	<div class="alert-body"></div>
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		<span aria-hidden="true">&times;</span>
+	</button>
+</div>

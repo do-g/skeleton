@@ -1,0 +1,9 @@
+<script type="text/javascript" id="js-vars">
+	var _dog_obj = {
+<?php if ($this->_js_vars) {
+	foreach ($this->_js_vars as $name => $data) { ?>
+		<?= $name ?>: <?= $data ?>,
+	<?php }
+} ?>
+	};
+</script>

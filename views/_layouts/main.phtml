@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="<?= Util::active_lang() ?>">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title><?= $this->seo_title(null, __('App SEO Title')) ?></title>
+	<!-- App Styles -->
+	<link rel="stylesheet" href="<?= Util::url('css/styles.css') ?>">
+</head>
+<body class="<?= $this->page_css_class() ?>">
+	<div id="site-wrapper">
+		<header class="app-header">
+			<?php $this->partial('navbar', 'shared') ?>
+		</header>
+		<main class="app-main">
+			<div class="flash-messages">
+				<div class="container"><?php $this->partial('flash-messages', 'shared') ?></div>
+			</div>
+			<?= $this->content() ?>
+		</main>
+		<footer class="app-footer">
+			<?php $this->partial('devices', 'shared') ?>
+		</footer>
+	</div>
+	<?php $this->partial('js-vars', 'shared') ?>
+	<script src="<?= Util::url('js/scripts.js') ?>"></script>
+</body>
+</html>

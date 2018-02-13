@@ -1,0 +1,8 @@
+<?php
+	$this->seo_title(__('Forbidden'));
+?>
+<section class="container exception not-found">
+	<i class="fa fa-exclamation"></i>
+	<h3><?= __('access_denied') ?></h3>
+	<div><?= $this->exception->getMessage() ?> <a href="/"><?= __('return_to_main_page') ?></a></div>
+</section>

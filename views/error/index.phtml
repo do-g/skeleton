@@ -1,0 +1,15 @@
+<?php
+	$this->seo_title(__('Error'));
+?>
+<div class="container exception">
+	<i class="fa fa-exclamation"></i>
+	<h3><?= __('exception_encountered') ?></h3>
+	<div><?= __('exception_verbose') ?> <a href="/"><?= __('return_to_main_page') ?></a></div>
+	<p></p>
+	<div class="trace">
+		<?= $this->exception->getMessage() ?>
+		<?php if (Core_Config::i()->general->trace_exceptions) { ?>
+			<p>Uncaught <?= $this->exception ?></p>
+		<?php } ?>
+	</div>
+</div>
