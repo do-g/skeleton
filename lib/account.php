@@ -2,8 +2,6 @@
 
 class Account {
 
-	private static $exception;
-
 	public static function o($account = null) {
 		if ($account) {
 			$account->password = null;
@@ -18,7 +16,6 @@ class Account {
 		}
         session_regenerate_id();
         self::o($account);
-        return true;
 	}
 
 	private static function destroy_session() {
@@ -28,22 +25,26 @@ class Account {
 
 	public static function login($email, $password) {
 		$account = Db_Account::i()->get('*', 'where email = ?', $email, true);
-		if ($account === false) {
-			return self::handle_exception();
+		if (__e($account)) {
+			return $account;
 		} else if (!$account || !$account->active || !password_verify($password, $account->password)) {
-			return null;
+			return false;
 		}
-        return self::create_session($account);
+        self::create_session($account);
+        return true;
 	}
 
 	public static function masquerade($account_id) {
 		$account = Db_Account::i()->get_by_id($account_id);
-		if (!$account) {
+		if (__e($account)) {
 			return $account;
+		} else if (!$account) {
+			return false;
 		}
 		$owner = self::o();
 		self::destroy_session();
-        return self::create_session($account, $owner);
+        self::create_session($account, $owner);
+        return true;
 	}
 
 	public static function is_masqueraded() {
@@ -60,38 +61,20 @@ class Account {
 
 	public static function reload() {
 		if (!self::o()) {
-			return self::handle_exception(new Core_Exception(__('no_auth_session_found')));
+			return new Core_Exception(__('no_auth_session_found'));
 		}
 		$account = Db_Account::i()->get_by_id(self::o()->id);
-		if (!$account) {
+		if (__e($account)) {
 			return $account;
+		} else if (!$account) {
+			return false;
 		}
-		return self::create_session($account, self::o()->session_owner);
+		self::create_session($account, self::o()->session_owner);
+		return true;
 	}
 
 	public static function authenticated() {
 		return Session::i()->account->id ? true : false;
-	}
-
-	public static function exception() {
-		return self::$exception;
-	}
-
-	public static function error() {
-		return self::exception() ? self::exception()->getMessage() : null;
-	}
-
-	private static function handle_exception($ex = null) {
-		$ex = $ex ?: Db_Account::exception();
-		self::$exception = $ex;
-		return false;
-	}
-
-	private static function handle_result($result, $ex = null) {
-		if ($result === false) {
-			return self::handle_exception($ex);
-		}
-		return $result;
 	}
 
 }

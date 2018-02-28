@@ -4,6 +4,10 @@ class Util {
 
 	private static $__config;
 
+	public static function is_exception($object) {
+		return $object instanceof Exception;
+	}
+
 	public static function is_me() {
 		return in_array($_SERVER['REMOTE_ADDR'], Core_Config::i()->me);
 	}
@@ -377,7 +381,7 @@ class Util {
 		$date = self::get_end_date($start, $days, null);
 		$free = self::count_free_days($start, $days, $free_days);
 		if ($free) {
-			$date->modify(($backward ? '-' : '+') . "{$free} days");
+			$date->modify(($backward ? '-' : '+') . "1 days");
 			return self::get_work_end_date($date, $backward ? -$free : $free, $free_days, $format);
 		}
 		return $format === null ? $date : $date->format($format);
@@ -398,13 +402,14 @@ class Util {
 		}
 		if (is_numeric($days_or_end)) {
 			$end = $start instanceof DateTime ? clone $start : new DateTime($start);
-			$end->modify(($days_or_end < 0 ? '-' : '+') . "{$days_or_end} days");
+			$days = abs($days_or_end + ($days_or_end > 0 ? -1 : 1));
+			$end->modify(($days_or_end < 0 ? '-' : '+') . "{$days} days");
 		} else {
 			$end = $days_or_end;
 		}
 		$days = self::count_days($start, $end);
 		$backward = $days < 0;
-		$free = self::count_free_days($start, $end, $free_days);
+		$free = self::count_free_days($start, $days_or_end, $free_days);
 		$days += $backward ? $free : -$free;
 		return $days;
 	}
@@ -426,7 +431,8 @@ class Util {
 		if (is_numeric($days_or_end)) {
 			$num_days = $days_or_end;
 			if ($num_days < 0) {
-				$start_date->modify("{$num_days} days");
+				$nd = $num_days + 1;
+				$start_date->modify("{$nd} days");
 				$num_days = abs($num_days);
 			}
 		} else {
@@ -470,6 +476,10 @@ class Util {
 		return preg_replace('([^0-9-: ])', '', $value);
 	}
 
+	public static function sanitize_time($value) {
+		return preg_replace('([^0-9:])', '', $value);
+	}
+
 /***** FLASH MESSAGES *****/
 
 	public static function set_flash_notice($message, $namespace = null) {
@@ -509,6 +519,10 @@ class Util {
 
 function __($label, $placeholders = []) {
 	return Label::i()->get($label, $placeholders);
+}
+
+function __e($object) {
+	Util::is_exception($object);
 }
 
 function isme() {

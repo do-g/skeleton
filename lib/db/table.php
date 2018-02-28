@@ -9,7 +9,6 @@ abstract class Db_Table {
 	protected $columns = [];
 	protected $arguments = [];
 	private static $_instances = [];
-	private static $exception;
 	private static $debug = false;
 
 	protected function __construct(...$arguments) {
@@ -36,7 +35,7 @@ abstract class Db_Table {
 
 	public function get_by_id($id, $options = null) {
 		$options = $this->prepare_sql_options($options);
-		return $this->get($options['columns'], 'WHERE id = ?', [$id], true);
+		return $this->get($options['columns'], 'WHERE id = ?', $id, true);
 	}
 
 	public function get($columns = null, $clause = null, $params = null, $single = false, $options = []) {
@@ -277,20 +276,9 @@ abstract class Db_Table {
 		return $value instanceof Db_Expr;
 	}
 
-	public static function exception() {
-		return self::$exception;
-	}
-
-	public static function error() {
-		return self::exception() ? self::exception()->getMessage() : null;
-	}
-
-	protected static function handle_exception($ex, $statement = null) {
-		self::$exception = $ex;
-		if ($statement) {
-			self::$exception->sql_err = $statement->errorInfo();
-		}
-		return false;
+	protected static function handle_exception($ex, $statement) {
+		$ex->sql_err = $statement->errorInfo();
+		return $ex;
 	}
 
 	public static function has_error_dup_key() {
