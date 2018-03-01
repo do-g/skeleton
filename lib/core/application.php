@@ -19,7 +19,8 @@ class Core_Application {
 		if (!$request) {
 			$uri = Util::get_uri(true);
 			$this->send_cached_output($uri);
-			$request = Core_Router::i()->route($uri);
+			$subdomain = Util::get_subdomain();
+			$request = Core_Router::i()->route($uri, $subdomain);
 		}
 		$this->do_request($request);
 		$this->_view->render();

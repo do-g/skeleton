@@ -90,20 +90,27 @@ class Util {
 	}
 
 	public static function get_host_name($url = null, $exclude_subdomain = false) {
-		if ($url) {
-			$parts = parse_url($url);
-			$host = $parts['host'];
-		} else {
-			$host = $_SERVER['HTTP_HOST'];
-		}
+		$url = $url ?: self::get_url();
+		$parts = parse_url($url);
+		$host = $parts['host'];
 		if ($exclude_subdomain) {
 			$parts = explode('.', $host);
 			if (count($parts) > 2) {
-				$parts = array_slice($parts, 1);
+				$parts = array_slice($parts, -2);
 			}
 			$host = implode('.', $parts);
 		}
 		return $host;
+	}
+
+	public static function get_subdomain($url = null) {
+		$url = $url ?: self::get_url();
+		$parts = parse_url($url);
+		$host = $parts['host'];
+		$parts = explode('.', $host);
+		$parts = array_slice($parts, 0, count($parts) - 2);
+		$subdomain = implode('.', $parts);
+		return $subdomain;
 	}
 
 	public static function url($fragment = null, $full = false) {
@@ -115,6 +122,10 @@ class Util {
 			$url = rtrim($url, '/') . '/' . ltrim($fragment, '/');
 		}
 		return $url;
+	}
+
+	public static function get_url() {
+		return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 	}
 
 	public static function image($relative_path, $full = false) {

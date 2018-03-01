@@ -80,6 +80,7 @@ class Base_Controller extends Core_Controller {
 		// they will be available to all users regardless of login
 		$public = array_merge_recursive([
 			'error' => true,
+			'test' => true,
 		], $public_strict);
 		// list of $controller => ($actions) for which the referer url is ignored
 		// login process keeps track of where the user came from

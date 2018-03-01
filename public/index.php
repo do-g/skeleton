@@ -11,4 +11,11 @@ require_once PATH_LIB_CORE . DIRECTORY_SEPARATOR . 'autoloader.php';
 spl_autoload_register('Core_Autoloader::load', true);
 set_exception_handler('Core_Exception::handler');
 @include_once(PATH_VENDOR . '/autoload.php');
+Core_Router::i()->add('/', [
+	'controller' => 'test',
+	'action' => 'test',
+	'token' => 'test1234',
+], [
+	'subdomain' => 'test',
+]);
 Core_Application::i()->bootstrap();

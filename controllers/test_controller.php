@@ -13,6 +13,11 @@ class Test_Controller extends Core_Controller {
 
 	}
 
+	public function action_test() {
+		$param = $this->_param('token');
+		echo 'now you are on subdomain "test" with token "' . $param . '"';
+	}
+
 	public function action_util_get_end_date() {
 		require_once PATH_TEST . '/util.php';
 		test_get_end_date();

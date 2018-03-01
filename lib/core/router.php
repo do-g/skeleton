@@ -37,7 +37,7 @@ class Core_Router {
 		]);
 	}
 
-	public function route($uri) {
+	public function route($uri, $subdomain = null) {
 		$uri_parts = explode('?', $uri);
 		$uri = $uri_parts[0];
 		foreach ($this->_redirects as $redirect) {
@@ -62,6 +62,9 @@ class Core_Router {
 				array_push($vars, 'params');
 				return '/?(.*)';
 			}, $pattern);
+			if ($r->constraints['subdomain'] && $r->constraints['subdomain'] != $subdomain) {
+				continue;
+			}
 			if (preg_match("~^{$pattern}$~i", $uri, $matches)) {
 				array_shift($matches);
 				$data = [];
