@@ -128,6 +128,22 @@ class Util {
 		return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 	}
 
+	public static function get_ip() {
+		if ($_SERVER['HTTP_CLIENT_IP']) {
+			return $_SERVER['HTTP_CLIENT_IP'];
+		} else if ($_SERVER['HTTP_X_FORWARDED_FOR']) {
+			return $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else if ($_SERVER['HTTP_X_FORWARDED']) {
+			return $_SERVER['HTTP_X_FORWARDED'];
+		} else if ($_SERVER['HTTP_FORWARDED_FOR']) {
+			return $_SERVER['HTTP_FORWARDED_FOR'];
+		} else if ($_SERVER['HTTP_FORWARDED']) {
+			return $_SERVER['HTTP_FORWARDED'];
+		} else {
+			return $_SERVER['REMOTE_ADDR'];
+		}
+	}
+
 	public static function image($relative_path, $full = false) {
 		return self::url('/images/' . trim($relative_path, '/'), $full);
 	}
@@ -190,9 +206,9 @@ class Util {
 		return unserialize(serialize($obj));
 	}
 
-	public static function redirect($url) {
+	public static function redirect($url, $status = 302) {
 		$url = filter_var($url, FILTER_SANITIZE_URL);
-		header("Location: {$url}");
+		header("Location: {$url}", true, $status);
 		exit;
 	}
 
@@ -532,8 +548,8 @@ function __($label, $placeholders = []) {
 	return Label::i()->get($label, $placeholders);
 }
 
-function __e($object) {
-	Util::is_exception($object);
+function __e($object = null) {
+	return $object ? Util::is_exception($object) : Core_Application::i()->is_exception();
 }
 
 function isme() {

@@ -3,6 +3,7 @@
 class Core_Application {
 
 	private static $_instance;
+	private $_is_exception = false;
 	private $_view;
 
 	private function __construct() {}
@@ -21,6 +22,9 @@ class Core_Application {
 			$this->send_cached_output($uri);
 			$subdomain = Util::get_subdomain();
 			$request = Core_Router::i()->route($uri, $subdomain);
+		} else if ($request['params']['_exception']) {
+			$this->_is_exception = true;
+			Core_Cache::_disable();
 		}
 		$this->do_request($request);
 		$this->_view->render();
@@ -38,6 +42,10 @@ class Core_Application {
 			echo $cache;
 			exit;
 		}
+	}
+
+	public function is_exception() {
+		return $this->_is_exception;
 	}
 
 }

@@ -4,7 +4,7 @@ class Base_Controller extends Core_Controller {
 
 	protected function _before() {
 		$this->_layout('main');
-		$this->check_auth();
+		//$this->check_auth();
 	}
 
 	protected function authorize($action_or_condition, $ajax = false, $message = null) {

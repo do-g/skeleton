@@ -4,6 +4,8 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title><?= $this->seo_title(null, __('App SEO Title')) ?></title>
+	<meta name="description" content="<?= $this->seo_description() ?>"/>
+	<meta name="robots" content="<?= $this->seo('robots') ?>">
 	<!-- App Styles -->
 	<link rel="stylesheet" href="<?= Util::url('css/styles.css') ?>">
 </head>
@@ -23,6 +25,7 @@
 		</footer>
 	</div>
 	<?php $this->partial('js-vars', 'shared') ?>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script src="<?= Util::url('js/scripts.js') ?>"></script>
 </body>
 </html>

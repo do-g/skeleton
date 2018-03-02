@@ -6,11 +6,11 @@ class Core_View {
 	protected $_name;
 	protected $_dir;
 	private   $_content;
-	private   $_seo_title;
-	private   $_seo_description;
 	private   $_body_css_class = [];
-	private   $_props = [];
 	private   $_js_vars = [];
+	private   $_seo = [
+		'robots' => 'index,follow',
+	];
 	const TEMPLATE_SUFFIX = '.phtml';
 
 	public function __construct() {}
@@ -84,11 +84,15 @@ class Core_View {
 		return $this->_content;
 	}
 
-	public function seo_title($title = null, $suffix = null) {
-		if ($title) {
-			$this->_seo_title = $title;
+	public function seo($prop, $value = null) {
+		if ($value) {
+			$this->_seo[$prop] = $value;
 		}
-		$seo_title = $this->_seo_title;
+		return $this->_seo[$prop];
+	}
+
+	public function seo_title($title = null, $suffix = null) {
+		$seo_title = $this->seo('title', $title);
 		if ($suffix) {
 			if ($seo_title) {
 				$seo_title .= ' - ';
@@ -99,10 +103,7 @@ class Core_View {
 	}
 
 	public function seo_description($description = null) {
-		if ($description) {
-			$this->_seo_description = $description;
-		}
-		return $this->_seo_description;
+		return $this->seo('description', $description);
 	}
 
 	public function page_css_class($css_class = null) {
@@ -114,13 +115,6 @@ class Core_View {
 
 	public function add_js_var($name, $value) {
 		$this->_js_vars[$name] = json_encode($value);
-	}
-
-	public function prop($key, $value = null) {
-		if ($value) {
-			$this->_props[$key] = $value;
-		}
-		return $this->_props[$key];
 	}
 
 }

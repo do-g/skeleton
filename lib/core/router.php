@@ -66,6 +66,9 @@ class Core_Router {
 				continue;
 			}
 			if (preg_match("~^{$pattern}$~i", $uri, $matches)) {
+				if ($r->data['redirect']) {
+					Util::redirect($r->data['redirect'], $r->data['status']);
+				}
 				array_shift($matches);
 				$data = [];
 				if ($vars) {

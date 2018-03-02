@@ -12,7 +12,6 @@ class Core_Exception extends Exception {
 
     public static function handler($ex) {
 		try {
-			Core_Cache::_disable();
 			$request = [
 				'controller' => Core_Controller::CONTROLLER_ERROR,
 				'params'     => [

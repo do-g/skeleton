@@ -18,4 +18,7 @@ Core_Router::i()->add('/', [
 ], [
 	'subdomain' => 'test',
 ]);
+Core_Router::i()->add('/google', [
+	'redirect' => 'https://www.google.com',
+]);
 Core_Application::i()->bootstrap();
