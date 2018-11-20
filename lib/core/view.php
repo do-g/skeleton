@@ -2,13 +2,14 @@
 
 class Core_View {
 
+	const DIR_SHARED = 'shared';
 	protected $_layout;
 	protected $_name;
 	protected $_dir;
 	private   $_content;
 	private   $_body_css_class = [];
 	private   $_js_vars = [];
-	private   $_seo = [
+	private   $_meta = [
 		'robots' => 'index,follow',
 	];
 	const TEMPLATE_SUFFIX = '.phtml';
@@ -18,7 +19,7 @@ class Core_View {
 	public function render() {
 		if (!$this->_content) {
 			if ($this->_name) {
-		  		$this->_content = $this->get_partial();
+		  		$this->_content = $this->get_partial(null, '.');
 		  	} else if ($this->_name !== false) {
 				throw new Core_Exception('No view has been set');
 			}
@@ -37,14 +38,21 @@ class Core_View {
 			throw new Core_Exception('No layout has been set');
 		}
 		Cache_Output::i()->set(Util::get_uri(), $output);
+		if (!Util::get_query_string()) {
+			Cache_Static::i()->set(Util::get_uri(), $output);
+		}
 		echo $output;
 		exit;
 	}
 
 	public function get_partial($name = null, $directory = null, $data = null) {
+		if ($data === null && $directory && !is_string($directory)) {
+			$data = $directory;
+			$directory = null;
+		}
 		$name = $name ?: $this->_name;
 		$template_name = $name . self::TEMPLATE_SUFFIX;
-		$template_dir = PATH_VIEWS . DIRECTORY_SEPARATOR . ($directory ? $directory : $this->_dir);
+		$template_dir = PATH_VIEWS . DIRECTORY_SEPARATOR . ($directory ? ($directory == '.' ? $this->_dir : $directory) : self::DIR_SHARED);
 		$template = $template_dir . DIRECTORY_SEPARATOR . $template_name;
 		if (!is_file($template)) {
 			throw new Core_Exception("View \"{$template_name}\" not found in path \"{$template_dir}\"");
@@ -84,15 +92,15 @@ class Core_View {
 		return $this->_content;
 	}
 
-	public function seo($prop, $value = null) {
+	public function meta($prop, $value = null) {
 		if ($value) {
-			$this->_seo[$prop] = $value;
+			$this->_meta[$prop] = $value;
 		}
-		return $this->_seo[$prop];
+		return $this->_meta[$prop];
 	}
 
-	public function seo_title($title = null, $suffix = null) {
-		$seo_title = $this->seo('title', $title);
+	public function meta_title($title = null, $suffix = null) {
+		$seo_title = $this->meta('title', $title);
 		if ($suffix) {
 			if ($seo_title) {
 				$seo_title .= ' - ';
@@ -102,8 +110,8 @@ class Core_View {
 		return $seo_title;
 	}
 
-	public function seo_description($description = null) {
-		return $this->seo('description', $description);
+	public function meta_description($description = null) {
+		return $this->meta('description', $description);
 	}
 
 	public function page_css_class($css_class = null) {

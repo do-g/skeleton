@@ -11,11 +11,6 @@ class Cache_Storage_File {
 			throw new Core_Exception("Undefined option \"path\" for cache storage \"" . get_class($this) . "\"");
 		}
 		$this->_dir = rtrim($config->path, DIRECTORY_SEPARATOR);
-		if (!is_dir($this->_dir)) {
-			throw new Core_Exception("Cache storage directory \"{$this->_dir}\" not found");
-		} else if (!is_writable($this->_dir)) {
-			throw new Core_Exception("Cache storage directory \"{$this->_dir}\" not writable");
-		}
 		$this->_config = $service_config;
 		if (!$this->_config->key_prefix) {
 			throw new Core_Exception("Undefined option \"key_prefix\" for service used with cache storage \"" . get_class($this) . "\"");
@@ -25,14 +20,22 @@ class Cache_Storage_File {
 	public function get($key) {
 		$file = $this->get_file_path($key);
 		if (is_file($file)) {
-			return file_get_contents($file);
+			$contents = @file_get_contents($file);
+			if ($contents === false) {
+				throw new Core_Exception("Unable to read cache file \"{$file}\"");
+			}
+			return $contents;
 		}
 		return false;
 	}
 
 	public function set($key, $content, $lifetime = null) {
+		$this->create_dir(dirname($key));
 		$file = $this->get_file_path($key);
-		file_put_contents($file, $content);
+		if (@file_put_contents($file, $content) === false) {
+			throw new Core_Exception("Unable to write cache file \"{$file}\"");
+		}
+		$lifetime = $lifetime ?: $this->_config->lifetime;
 		if ($lifetime) {
 			touch($file . '_exp_' . $lifetime);
 		}
@@ -49,18 +52,9 @@ class Cache_Storage_File {
 	}
 
 	public function clear() {
-		$files = glob($this->_dir . "/{$this->_config->key_prefix}*");
+		$files = glob($this->_dir . "/{$this->_config->key_prefix}/*");
 		foreach ($files as $file) {
 		    $this->delete($file);
-		}
-	}
-
-	public function clear_special() {
-		$files = glob($this->_dir . "/{$this->_config->key_prefix}*");
-		foreach ($files as $file) {
-			if (strpos($file, '_exp_') === false && (!$this->get_exp($file) || $this->expired($file))) {
-		    	$this->delete($file);
-			}
 		}
 	}
 
@@ -83,16 +77,27 @@ class Cache_Storage_File {
 		}
 	}
 
+	private function create_dir($suffix = null) {
+		$dir_path = $this->get_file_path($suffix);
+		if (is_dir($dir_path)) {
+			return;
+		}
+		$result = @mkdir($dir_path, 0755, true);
+		if (!$result) {
+			throw new Core_Exception("Unable to create cache storage directory \"{$dir_path}\"");
+		}
+	}
+
+	private function get_dir_path() {
+		return $this->_dir . DIRECTORY_SEPARATOR . $this->_config->key_prefix;
+	}
+
 	private function get_file_path($key) {
-		return $this->_dir . DIRECTORY_SEPARATOR . $this->to_key($key);
+		return $this->get_dir_path() . DIRECTORY_SEPARATOR . $key;
 	}
 
 	private function is_file($key) {
-		return strpos($key, $this->_config->key_prefix) !== false;
-	}
-
-	private function to_key($key) {
-		return $this->_config->key_prefix . $key;
+		return strpos($key, DIRECTORY_SEPARATOR) !== false;
 	}
 
 }

@@ -13,6 +13,7 @@ class Core_Controller {
 	protected $_params;
 	protected $_raw_params;
 	protected $_view;
+	protected $_static_actions = [];
 
 	protected function __construct($data, $view) {
 		$this->_name = Util::to_controller_action_name($data['controller'] ?: self::DEFAULT_CONTROLLER);
@@ -23,15 +24,17 @@ class Core_Controller {
 		$this->_view->page_css_class("req-{$this->_name}-{$this->_action}");
 		$this->_render($this->_action);
 		$this->_before();
-		$method_name = Util::to_action_method($this->_action);
-		if (!method_exists($this, $method_name)) {
-			throw new Core_Exception("Method \"{$method_name}\" not found in controller \"" . get_class($this) . "\"", -404);
-		}
-		$action_result = call_user_func([$this, $method_name]);
-		$this->_after();
 		if ($this->_is_ajax()) {
 			$this->_layout(false);
 		}
+		if (!$this->_is_static()) {
+			$method_name = Util::to_action_method($this->_action);
+			if (!method_exists($this, $method_name)) {
+				throw new Core_Exception("Method \"{$method_name}\" not found in controller \"" . get_class($this) . "\"", -404);
+			}
+			$action_result = call_user_func([$this, $method_name]);
+		}
+		$this->_after();
 		if ($this->_client_accepts_json()) {
 			$this->_respond_json($action_result);
 		}
@@ -62,10 +65,16 @@ class Core_Controller {
 		$this->_view->content($response);
 	}
 
-	protected function _respond_json($response, $immediate = false) {
-		header('Content-Type: application/json');
-		$json = json_encode($response);
-		$this->_respond($json, $immediate);
+	protected function _respond_json($response = null, $immediate = false) {
+		$this->_content_type_json();
+		if ($response) {
+			$json = json_encode($response);
+			$this->_respond($json, $immediate);
+		}
+	}
+
+	protected function _content_type_json($charset = 'utf-8') {
+		Util::content_type('application/json', $charset);
 	}
 
 	final protected function _forward($request) {
@@ -119,12 +128,12 @@ class Core_Controller {
 		$client_accepts = array_map('trim', $client_accepts);
 		switch ($type) {
 			case 'json':
-				return in_array('application/json', $client_accepts);
+				return in_array('application/json', $client_accepts) || $this->_param('json');
 		}
 	}
 
 	protected function _client_accepts_json() {
-		return $this->_client_accepts('json') || $this->_param('json');
+		return $this->_client_accepts('json');
 	}
 
 	protected function _force_ajax() {
@@ -134,6 +143,18 @@ class Core_Controller {
 		if (!$this->_client_accepts('json')) {
 			$_SERVER['HTTP_ACCEPT'] .= ', application/json';
 		}
+	}
+
+	protected function _is_static() {
+		return in_array($this->_action, $this->_static_actions);
+	}
+
+	protected function _static($actions = null) {
+		if ($actions) {
+			$actions = is_array($actions) ? $actions : [$actions];
+			$this->_static_actions = array_merge($this->_static_actions, $actions);
+		}
+		return $this->_static_actions;
 	}
 
 }

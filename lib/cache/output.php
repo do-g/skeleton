@@ -2,7 +2,7 @@
 
 class Cache_Output extends Core_Cache {
 
-	const KEY_PREFIX = '_out_';
+	const KEY_PREFIX = 'output';
 	private $_key;
 
 	protected function __construct() {

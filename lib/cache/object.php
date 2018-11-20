@@ -2,7 +2,7 @@
 
 class Cache_Object extends Core_Cache {
 
-	const KEY_PREFIX = '_obj_';
+	const KEY_PREFIX = 'object';
 
 	protected function __construct() {
 		$config = Core_Config::i()->cache->service->object;

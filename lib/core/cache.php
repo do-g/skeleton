@@ -2,6 +2,7 @@
 
 abstract class Core_Cache {
 
+	const Cache_Storage_File = 'File';
 	private static $_instances = [];
 	protected $_storage;
 	protected static $__disabled = false;
@@ -14,9 +15,8 @@ abstract class Core_Cache {
 			if (!$config->storage) {
 				throw new Core_Exception("Undefined option \"storage\" for cache service \"" . get_class($this) . "\"");
 			}
-			if ($config->lifetime == -1) {
-				$config->lifetime = 0;
-				register_shutdown_function([$this, 'clear_session']);
+			if ($config->lifetime === 0) {
+				register_shutdown_function([$this, 'clear']);
 			}
 			$storage_class_name = 'Cache_Storage_' . $config->storage;
 			$this->_storage = new $storage_class_name($config);
@@ -65,10 +65,6 @@ abstract class Core_Cache {
 			return false;
 		}
 		return $this->_storage->clear();
-	}
-
-	public function clear_session() {
-		return $this->_storage->clear_special();
 	}
 
 	public function disable() {

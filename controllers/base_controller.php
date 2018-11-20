@@ -90,7 +90,7 @@ class Base_Controller extends Core_Controller {
 			'account' => ['signout'],
 		];
 		if (!$this->in_list($public) && !Account::authenticated()) {
-			if (!$this->in_list($ignore_continue_to)) {
+			if (!$this->in_list($ignore_continue_to) && !$this->_is_ajax()) {
 				Flash::i('login/continue')->set($_SERVER['REQUEST_URI']);
 			}
 			$this->_redirect('/account/signin');

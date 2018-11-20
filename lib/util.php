@@ -4,6 +4,18 @@ class Util {
 
 	private static $__config;
 
+	public static function is_dev() {
+		return !self::is_env('production');
+	}
+
+	public static function is_prod() {
+		return self::is_env('production');
+	}
+
+	public static function is_env($env) {
+		return APP_ENV == $env;
+	}
+
 	public static function is_exception($object) {
 		return $object instanceof Exception;
 	}
@@ -81,8 +93,27 @@ class Util {
 		return array_combine($keys, $values);
 	}
 
-	public static function get_uri($ignore_base_fragment = false) {
-		$uri = '/' . trim($_SERVER['REQUEST_URI'], '/');
+	public static function url($fragment = null, $full = false) {
+		$url = $full ? rtrim(URL_BASE, '/') : '/';
+		if (URL_BASE_FRAGMENT) {
+			$url = rtrim($url, '/') . '/' . trim(URL_BASE_FRAGMENT, '/');
+		}
+		if ($fragment) {
+			$url = rtrim($url, '/') . '/' . ltrim($fragment, '/');
+		}
+		return $url;
+	}
+
+	public static function get_url() {
+		return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	}
+
+	public static function get_uri($ignore_base_fragment = false, $ignore_query = false) {
+		$url = $_SERVER['REQUEST_URI'];
+		if ($ignore_query) {
+			$url = parse_url($url, PHP_URL_PATH);
+		}
+		$uri = '/' . trim($url, '/');
 		if ($ignore_base_fragment) {
 			$uri = str_replace('/' . trim(URL_BASE_FRAGMENT, '/'), '/', $uri);
 		}
@@ -113,19 +144,9 @@ class Util {
 		return $subdomain;
 	}
 
-	public static function url($fragment = null, $full = false) {
-		$url = $full ? rtrim(URL_BASE, '/') : '/';
-		if (URL_BASE_FRAGMENT) {
-			$url = rtrim($url, '/') . '/' . trim(URL_BASE_FRAGMENT, '/');
-		}
-		if ($fragment) {
-			$url = rtrim($url, '/') . '/' . ltrim($fragment, '/');
-		}
-		return $url;
-	}
-
-	public static function get_url() {
-		return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	public static function get_query_string($url = null) {
+		$url = $url ?: self::get_url();
+		return parse_url($url, PHP_URL_QUERY);
 	}
 
 	public static function get_ip() {
@@ -389,6 +410,50 @@ class Util {
 		return LANG_ACTIVE;
 	}
 
+	public static function content_type($type, $charset = 'utf-8') {
+		header("Content-Type: {$type}; charset={$charset}");
+	}
+
+	public static function no_cache() {
+		header("Expires: on, 01 Jan 1970 00:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Cache-Control: no-store, no-cache, must-revalidate");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");
+	}
+
+	/***** ASSETS *****/
+
+	public static function img($path) {
+		$prefix = rtrim(URL_BASE_FRAGMENT_IMAGES, '/');
+		$path = ltrim($path, '/');
+		return "{$prefix}/{$path}";
+	}
+
+	public static function jpg($path) {
+		return self::img("{$path}.jpg");
+	}
+
+	public static function png($path) {
+		return self::img("{$path}.png");
+	}
+
+	public static function svg($path) {
+		return self::img("{$path}.svg");
+	}
+
+	public static function svgi($path, $class = null, $return = true) {
+		$path = PATH_ROOT . '/public' . self::svg($path);
+		$contents = file_get_contents($path);
+		if ($class) {
+			$contents = str_replace('<svg ', '<svg class="' . $class . '" ', $contents);
+		}
+		if ($return) {
+			return $contents;
+		}
+		echo $contents;
+	}
+
 	/***** DATES & DAYS *****/
 
 	public static function get_end_date($start, $days, $format = 'Y-m-d') {
@@ -566,4 +631,24 @@ function printr(...$var) {
 
 function tolog($data, $file = null) {
 	return Util::log($data, $file);
+}
+
+function img($path) {
+	return Util::img($path);
+}
+
+function jpg($path) {
+	return Util::jpg($path);
+}
+
+function png($path) {
+	return Util::png($path);
+}
+
+function svg($path) {
+	return Util::svg($path);
+}
+
+function svgi($path, $class = null) {
+	return Util::svgi($path, $class);
 }

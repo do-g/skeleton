@@ -3,28 +3,28 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title><?= $this->seo_title(null, __('App SEO Title')) ?></title>
-	<meta name="description" content="<?= $this->seo_description() ?>"/>
-	<meta name="robots" content="<?= $this->seo('robots') ?>">
+	<title><?= $this->meta_title(null, __('App SEO Title')) ?></title>
+	<meta name="description" content="<?= $this->meta_description() ?>"/>
+	<meta name="robots" content="<?= $this->meta('robots') ?>">
 	<!-- App Styles -->
 	<link rel="stylesheet" href="<?= Util::url('css/styles.css') ?>">
 </head>
 <body class="<?= $this->page_css_class() ?>">
 	<div id="site-wrapper">
 		<header class="app-header">
-			<?php $this->partial('navbar', 'shared') ?>
+			<?php $this->partial('navbar') ?>
 		</header>
 		<main class="app-main">
 			<div class="flash-messages">
-				<div class="container"><?php $this->partial('flash-messages', 'shared') ?></div>
+				<div class="container"><?php $this->partial('flash-messages') ?></div>
 			</div>
 			<?= $this->content() ?>
 		</main>
 		<footer class="app-footer">
-			<?php $this->partial('devices', 'shared') ?>
+			<?php $this->partial('devices') ?>
 		</footer>
 	</div>
-	<?php $this->partial('js-vars', 'shared') ?>
+	<?php $this->partial('js-vars') ?>
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 	<script src="<?= Util::url('js/scripts.js') ?>"></script>
 </body>
